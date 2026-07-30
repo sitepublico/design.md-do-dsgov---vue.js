@@ -62,7 +62,7 @@ Este documento é usado em **dois cenários**. Identifique o seu antes de gerar 
 
 | Cenário | O que fazer |
 | :-- | :-- |
-| **Projeto novo** | Monte a base com o [QUICKSTART_DSGOV_VUE.md](./QUICKSTART_DSGOV_VUE.md) — ele usa Vite, TypeScript e as **últimas versões estáveis**. Depois volte para cá. |
+| **Projeto novo** | Monte a base com o [setup/QUICKSTART_DSGOV_VUE.md](./setup/QUICKSTART_DSGOV_VUE.md) — ele usa Vite, TypeScript e as **últimas versões estáveis**. Depois volte para cá. |
 | **Projeto GovBR-DS Vue já existente** | **Não migre nada por conta própria.** Detecte as versões instaladas (abaixo) e gere código compatível com elas. |
 
 #### Detectar o que o projeto realmente tem
