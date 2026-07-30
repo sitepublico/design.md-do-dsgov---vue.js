@@ -97,11 +97,10 @@ Ao terminar, rode npm run dev e me diga: as versões instaladas, o resultado do 
 O ambiente sobe em `http://localhost:5173/`. **Daí em diante o cenário passa a ser o 1**: os prompts são sobre
 telas, e quem comanda é o `DESIGN.md`.
 
-Por que não clonar o quickstart oficial direto: apesar de o README dele citar Vite, o `npm install` do
-repositório instala hoje a cadeia **Vue CLI / webpack** (`@vue/cli-service`, `webpack-chain`, `consolidate`) e
-reporta **dezenas de vulnerabilidades, incluindo críticas**. O guia da `setup/` monta a base moderna, **baixa
+O quickstart oficial cita o Vite, mas o `npm install` do repositório instala hoje a cadeia **Vue CLI / webpack** (`@vue/cli-service`, `webpack-chain`, `consolidate`) e
+reporta algumas vulnerabilidades. O guia da `setup/` monta uma base moderna, **baixa
 as páginas de exemplo do repositório oficial na hora da execução** (para acompanharem atualizações) e
-**diagnostica antes de adaptar** — se o repo oficial já tiver se modernizado, ele não mexe em nada.
+**diagnostica antes de adaptar**: se o repo oficial já tiver se modernizado, ele não mexe em nada.
 
 ---
 
