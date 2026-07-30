@@ -1,7 +1,8 @@
 # Design System — GovBR-DS (Padrão Digital de Governo) para Vue 3 + Web Components
 
-> **Versão:** 3.0 — escrito a partir da [documentação oficial do GovBR-DS](https://www.gov.br/ds) e da API real de `@govbr-ds/webcomponents` / `@govbr-ds/webcomponents-vue` `2.0.0-next.70`. Fontes completas na [Seção 19](#19-referências).
+> **Versão:** 3.1 — escrito a partir da [documentação oficial do GovBR-DS](https://www.gov.br/ds) e da API real de `@govbr-ds/webcomponents` / `@govbr-ds/webcomponents-vue`. A API da Seção 12 foi extraída da linha `2.0.0` (validada em `2.0.0-next.70` e no estável `2.0.0`). Fontes completas na [Seção 19](#19-referências).
 > **Finalidade:** Única Fonte da Verdade para geração de telas de alta fidelidade por agentes de IA (Claude / Cursor / Copilot). Cada valor deste documento é rastreável à documentação oficial ou aos tipos `.d.ts` da biblioteca.
+> **Aplicabilidade:** serve a **projetos novos e a apps GovBR-DS Vue já existentes**. A versão que vale é sempre a **instalada no projeto** — ver [Seção 1.0](#10-cenários-de-adoção--leia-antes-de-tudo).
 > **Idioma da UI:** Português do Brasil. Toda label, mensagem e microcopy gerada deve seguir a Seção 15.
 
 ---
@@ -11,7 +12,7 @@
 | # | Seção | Use quando |
 | :-- | :-- | :-- |
 | 0 | [Contrato do Agente](#0-contrato-do-agente) | **Sempre leia primeiro** |
-| 1 | [Instalação e Bootstrap](#1-instalação-e-bootstrap) | Configurar projeto |
+| 1 | [Instalação e Bootstrap](#1-instalação-e-bootstrap) | Configurar projeto · **detectar versão instalada (1.0)** |
 | 2 | [Princípios e Atmosfera](#2-princípios-e-atmosfera) | Decisões de estilo |
 | 3 | [Cores](#3-cores) | Qualquer cor |
 | 4 | [Tipografia](#4-tipografia) | Qualquer texto |
@@ -46,23 +47,74 @@ Regras não negociáveis ao gerar qualquer código para este projeto:
 7. **Não importe outra biblioteca de UI.** Bootstrap, Tailwind, Vuetify, PrimeVue e afins são proibidos — o `@govbr-ds/core` já entrega grid, utilitários e reset.
 8. **Toda tela vive no Template Base:** Header (obrigatório) → Conteúdo (obrigatório, com Breadcrumb e Menu opcionais) → Footer (obrigatório). Ver Seção 6.4.
 9. **Português, voz ativa, singular.** Ver Seção 15.
+10. **Respeite a versão instalada no projeto.** Este documento serve tanto a projetos novos quanto a apps
+    GovBR-DS Vue **preexistentes**. Antes de gerar código, **verifique o que está instalado** (Seção 1.0) e
+    use a API daquela versão — não a de uma versão mais nova que o projeto não tem. Nunca atualize
+    dependências por conta própria: proponha, não execute.
 
 ---
 
 ## 1. Instalação e Bootstrap
 
+### 1.0 Cenários de adoção — leia antes de tudo
+
+Este documento é usado em **dois cenários**. Identifique o seu antes de gerar qualquer código.
+
+| Cenário | O que fazer |
+| :-- | :-- |
+| **Projeto novo** | Monte a base com o [QUICKSTART_DSGOV_VUE.md](./QUICKSTART_DSGOV_VUE.md) — ele usa Vite, TypeScript e as **últimas versões estáveis**. Depois volte para cá. |
+| **Projeto GovBR-DS Vue já existente** | **Não migre nada por conta própria.** Detecte as versões instaladas (abaixo) e gere código compatível com elas. |
+
+#### Detectar o que o projeto realmente tem
+
+```bash
+# Versões instaladas (fonte da verdade para este projeto)
+npm ls @govbr-ds/core @govbr-ds/webcomponents @govbr-ds/webcomponents-vue vue
+
+# Últimas estáveis publicadas (só para comparação/proposta)
+npm view @govbr-ds/webcomponents version
+npm view @govbr-ds/webcomponents-vue version
+npm view @govbr-ds/core version
+```
+
+Verifique também:
+
+- **Bundler:** existe `vite.config.*` (Vite) ou `vue.config.js` / `@vue/cli-service` (Vue CLI/webpack)?
+- **Wrapper:** `@govbr-ds/webcomponents-vue` está instalado, ou o projeto usa Web Components crus
+  (`defineCustomElements`, `isCustomElement`)?
+- **Linguagem:** TypeScript ou JavaScript?
+
+Adapte a geração ao que encontrar:
+
+| O que o projeto tem | Como gerar código |
+| :-- | :-- |
+| Wrapper instalado | Componentes `Br*` em PascalCase, `v-model` nos campos de formulário (padrão deste documento) |
+| Sem wrapper (Web Components crus) | Tags `<br-*>` em kebab-case, `:value` + `@value-change` lendo `event.detail`; **sem** `v-model`. Fundamentos (Seções 2–11), acessibilidade e microcopy valem igual |
+| JavaScript | Remova `lang="ts"` e as anotações de tipo dos exemplos |
+| Vue CLI / webpack | Os componentes funcionam do mesmo jeito; só a configuração de build difere |
+
+> Se o projeto estiver numa versão antiga cuja API divirja da Seção 12, **prefira a API instalada** e avise o
+> usuário da divergência. Sugerir atualização é bem-vindo; executá-la sem pedir, não.
+
 ### 1.1 Dependências
 
+**Política de versão:** projetos novos usam as **últimas estáveis**; projetos existentes usam **o que já está
+instalado**. Por isso este documento não fixa números — consulte a Seção 1.0.
+
 ```jsonc
-// package.json
+// package.json — faixas recomendadas para projeto NOVO
 "dependencies": {
-  "@govbr-ds/core": "^3.6.1",                  // CSS: tokens, grid, utilitários
-  "@govbr-ds/webcomponents": "2.0.0-next.70",  // Web Components (Stencil)
-  "@govbr-ds/webcomponents-vue": "2.0.0-next.70", // Wrappers Vue 3
-  "vue": "^3.3.4",
-  "vue-router": "^4.2.2"
+  "@govbr-ds/core": "^3",                  // CSS: tokens, grid, utilitários
+  "@govbr-ds/webcomponents": "^2",         // Web Components (Stencil)
+  "@govbr-ds/webcomponents-vue": "^2",     // Wrappers Vue 3
+  "vue": "^3.5",                           // mínimo exigido pelo wrapper: >=3.3
+  "vue-router": "^4"
 }
 ```
+
+> O caret (`^`) já traz patches e minors novos via `npm update`, travando apenas no próximo major.
+> Mantenha `core`, `webcomponents` e `webcomponents-vue` no **mesmo major** — o wrapper declara os outros
+> como `peerDependencies` e versões desalinhadas causam erro em runtime.
 
 ### 1.2 Entrada da aplicação
 
@@ -760,7 +812,11 @@ Suportam `density`: `BrAvatar`, `BrButton`, `BrHeader`, `BrInput`, `BrItem`, `Br
 
 ## 12. Referência de Componentes
 
-API extraída de `@govbr-ds/webcomponents` `2.0.0-next.70`. Todos os componentes aceitam `customId` (gerado automaticamente se omitido) — omitido das tabelas abaixo por brevidade.
+API extraída dos artefatos publicados da linha `2.0.0` de `@govbr-ds/webcomponents`. Todos os componentes aceitam `customId` (gerado automaticamente se omitido) — omitido das tabelas abaixo por brevidade.
+
+> ⚠️ **Se o projeto usa outra versão**, esta seção é referência, não lei: confirme a API instalada com a receita
+> da Seção 19 (extração de `components.d.ts` / `custom-elements.json`) e prefira o que estiver no `node_modules`.
+> Isso vale especialmente em apps antigos, onde nomes de props podem divergir.
 
 **Convenção de nomes:** props são `camelCase` no Vue (`isLoading`, `showIcon`), que o Stencil expõe como `kebab-case` no DOM (`is-loading`, `show-icon`). Ambos funcionam no template Vue.
 
@@ -1922,7 +1978,7 @@ artefatos publicados no pacote npm.
 | 9. Estados | <https://www.gov.br/ds/fundamentos-visuais/estados> |
 | 10. Iconografia | <https://www.gov.br/ds/fundamentos-visuais/iconografia> |
 | 11. Densidade | <https://www.gov.br/ds/padroes/design/densidade> |
-| 12. Componentes — **API** | `@govbr-ds/webcomponents@2.0.0-next.70` → `dist/types/components.d.ts`, `dist/custom-elements.json`; wrappers em `@govbr-ds/webcomponents-vue` → `src/stencil-generated/components.js` |
+| 12. Componentes — **API** | `@govbr-ds/webcomponents` linha `2.0.0` → `dist/types/components.d.ts`, `dist/custom-elements.json`; wrappers em `@govbr-ds/webcomponents-vue` → `src/stencil-generated/components.js` |
 | 12. Componentes — **diretrizes visuais** | <https://www.gov.br/ds/components/{componente}?tab=designer> (ex.: [button](https://www.gov.br/ds/components/button?tab=designer), [table](https://www.gov.br/ds/components/table?tab=designer), [message](https://www.gov.br/ds/components/message?tab=designer)) |
 | 13.1 Formulário | <https://www.gov.br/ds/padroes/design/formulario> |
 | 13.5 Empty state | <https://www.gov.br/ds/padroes/design/emptystates> |
@@ -1931,7 +1987,15 @@ artefatos publicados no pacote npm.
 | 15. Writing e Microcopy | <https://www.gov.br/ds/padroes/writing/principios-writing> · <https://www.gov.br/ds/padroes/writing/microcopy> |
 | 17. Armadilhas Stencil + Vue | Tipos da biblioteca + [PADRAO_IMPLEMENTACAO_GOVBR.md](https://gitlab.com/govbr-ds/bibliotecas/wbc/govbr-ds-wbc-quickstart-vue/-/blob/acdff83a19d141361132c7defd9c6d4abd83c62e/PADRAO_IMPLEMENTACAO_GOVBR.md) |
 
-**Ao atualizar a versão da biblioteca**, reconfira a Seção 12 contra os artefatos do novo pacote:
+**Ao atualizar a biblioteca — ou ao trabalhar num projeto cuja versão você não conhece** — reconfira a Seção 12 contra os artefatos do pacote realmente instalado. Em um projeto existente, leia direto do `node_modules`:
+
+```bash
+cat node_modules/@govbr-ds/webcomponents/dist/types/components.d.ts
+cat node_modules/@govbr-ds/webcomponents/dist/custom-elements.json
+cat node_modules/@govbr-ds/webcomponents-vue/src/stencil-generated/components.js
+```
+
+A partir de um tarball baixado:
 
 ```bash
 # Props e tipos de cada componente
